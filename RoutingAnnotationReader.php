@@ -12,10 +12,10 @@ namespace tyesty\RoutingAnnotationReader;
  * To ensure that your controller action is indexed, simply add a bunch of docblock to your
  * Controller classes.
  *
- * @package tyesty
- * @author Tobias Stursberg <tobias@stursberg.de>
+ * @package tyesty/RoutingAnnotationReader
+ * @author  Tobias Stursberg <tobias@stursberg.de>
  * @license MIT
- * @see https://github.com/tyesty/routing-annotation-reader
+ * @see     https://github.com/tyesty/routing-annotation-reader
  */
 class Reader {
 
@@ -50,8 +50,8 @@ class Reader {
 
 	/**
 	 * RoutingAnnotationReader constructor.
-     *
-     * Sets the directories and an optional log file
+	 *
+	 * Sets the directories and an optional log file
 	 *
 	 * @param array       $directories Directories to search in for Controller classes
 	 * @param null|string $route_log   Complete path to the log file (incl. filename)
@@ -63,18 +63,18 @@ class Reader {
 		$this->routeLog = $route_log;
 	}
 
-    /**
-     * Runs the annotation reader itself
-     *
-     * @throws \ReflectionException
-     */
+	/**
+	 * Runs the annotation reader itself
+	 *
+	 * @throws \ReflectionException
+	 */
 	public function run(): void {
-	    $this->calculateClassList();
-	    $this->buildRoutes();
-	    if ($this->routeLog !== null) {
-	        $this->writeRouteLog();
-        }
-    }
+		$this->calculateClassList();
+		$this->buildRoutes();
+		if ($this->routeLog !== null) {
+			$this->writeRouteLog();
+		}
+	}
 
 	/**
 	 * Calculates the class list the annotation reader shall read.
@@ -143,7 +143,7 @@ class Reader {
 					$s_route = preg_replace("/\/{2,}/is", "/", $s_base_route . $a_comment[2]);
 
 					// check for route or name collisions
-					array_walk($this->routes, function($route, $key) use ($s_method, $s_name, $s_route, $s_action) {
+					array_walk($this->routes, function ($route, $key) use ($s_method, $s_name, $s_route, $s_action) {
 
 						// check for route collision
 						if ($route["method"] === $s_method && $route["route"] === $s_route) {

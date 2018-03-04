@@ -1,0 +1,15 @@
+{
+    "name": "tyesty/routing-annotation-reader",
+    "description": "Controller class annotation reader for collecting routes",
+    "type": "library",
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tobias Stursberg",
+            "email": "tobias@stursberg.de"
+        }
+    ]
+}
