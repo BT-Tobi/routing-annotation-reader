@@ -11,5 +11,11 @@
             "name": "Tobias Stursberg",
             "email": "tobias@stursberg.de"
         }
-    ]
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "tyesty\\RoutingAnnotationReader\\": "src/tyesty/RoutingAnnotationReader/"
+        }
+    }
 }
