@@ -47,6 +47,21 @@ class Reader {
 	 */
 	private $routes = [];
 
+	/**
+	 * The class postfix. Only classes that have this postfix will get indexed
+	 *
+	 * @var string
+	 */
+	private $classPostfix = "Controller";
+
+	/**
+	 * The method postfix. Only methods that have this postfix will get indexed
+	 *
+	 * @var string
+	 * @todo use it ;-)
+	 */
+	private $methodPostfix = "Action";
+
 
 	/**
 	 * RoutingAnnotationReader constructor.
@@ -61,6 +76,15 @@ class Reader {
 	public function __construct(array $directories, ?string $route_log = null) {
 		$this->directories = $directories;
 		$this->routeLog = $route_log;
+	}
+
+	/**
+	 * Sets the class postfix for the annotation reader
+	 *
+	 * @param string $class_postfix The class postfix
+	 */
+	public function setClassPostfix(string $class_postfix): void {
+		$this->classPostfix = $class_postfix;
 	}
 
 	/**
@@ -84,10 +108,10 @@ class Reader {
 		// walk through all the directories
 		foreach ($this->directories as $s_directory) {
 
-			// and look for files ending with "Contoller.php"
+			// and look for files ending with "{$this->classPostfix}.php"
 			$_o_rec = new \RecursiveDirectoryIterator(realpath($s_directory));
 			$_o_it = new \RecursiveIteratorIterator($_o_rec);
-			$a_regex = new \RegexIterator($_o_it, '/^.+Controller\.php$/i', \RecursiveRegexIterator::GET_MATCH);
+			$a_regex = new \RegexIterator($_o_it, '/^.+' . $this->classPostfix . '\.php$/i', \RecursiveRegexIterator::GET_MATCH);
 
 			// walk through all the controller files and build up a list of classes
 			foreach ($a_regex as $s_filename => $foo) {
