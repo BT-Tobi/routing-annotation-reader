@@ -82,9 +82,22 @@ class Reader {
 	 * Sets the class postfix for the annotation reader
 	 *
 	 * @param string $class_postfix The class postfix
+	 * @return self
 	 */
-	public function setClassPostfix(string $class_postfix): void {
+	public function setClassPostfix(string $class_postfix): self {
 		$this->classPostfix = $class_postfix;
+		return $this;
+	}
+
+	/**
+	 * Sets the method postfix for the annotation reader
+	 *
+	 * @param string $method_postfix The method postfix for action methods
+	 * @return self
+	 */
+	public function setMethodPostfix(string $method_postfix): self {
+		$this->methodPostfix = $method_postfix;
+		return $this;
 	}
 
 	/**
