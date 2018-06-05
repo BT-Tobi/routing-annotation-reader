@@ -17,7 +17,7 @@ namespace tyesty\RoutingAnnotationReader;
  * @license MIT
  * @see     https://github.com/tyesty/routing-annotation-reader
  */
-class Reader {
+class Reader implements ReaderInterface {
 
 	/**
 	 * the directories we're walking through
@@ -158,11 +158,27 @@ class Reader {
 			preg_match("/@BaseRoute\s+(.*?)\s/i", $o_reflection->getDocComment(), $a_base_route);
 			$s_base_route = $a_base_route[1];
 
+			// and the base middlewares
+            $a_base_middlewares = [];
+            preg_match_all("/@Middleware\s+(.*?)\s+/i", $o_reflection->getDocComment(), $_a_base_mw, PREG_SET_ORDER);
+            foreach ($_a_base_mw as $a_base_mw) {
+                $a_base_middlewares[] = trim($a_base_mw[1]);
+            }
+
 			// walk through all the methods
 			foreach ($o_reflection->getMethods() as $_o_method) {
 
 				$o_method = new \ReflectionMethod($_o_method->class, $_o_method->name);
-				$s_action = $_o_method->class . ":" . $_o_method->name;
+				$s_action = "\\".$_o_method->class . "::class.\"::" . $_o_method->name."\"";
+
+				// get the middlewares
+                // initialize
+                $a_middlewares = $a_base_middlewares;
+                preg_match_all("/@Middleware\s+(.*?)\s+/i", $o_method->getDocComment(), $a_m_middlewares, PREG_SET_ORDER);
+                foreach ((array)$a_m_middlewares as $a_mw) {
+                    $a_middlewares[] = $a_mw[1];
+                }
+                $a_middlewares = array_unique($a_middlewares);
 
 				// get the method comment and fetch the route
 				preg_match_all("/@Route\s+\[(.*?)\]\s+(.*?)\s+(\((.*?)\))?/i", $o_method->getDocComment(), $a_m_comment, PREG_SET_ORDER);
@@ -195,7 +211,13 @@ class Reader {
 					});
 
 					// no collision, then add the route to the routes list
-					$this->routes[] = ["method" => $s_method, "route" => $s_route, "action" => $s_action, "name" => $s_name];
+                    $o_route = new Route();
+                    $o_route->method = $s_method;
+                    $o_route->route = $s_route;
+                    $o_route->action = $s_action;
+                    $o_route->name = $s_name;
+                    $o_route->middlewares = (array)$a_middlewares;
+					$this->routes[] = $o_route;
 				}
 			}
 		}
@@ -204,7 +226,7 @@ class Reader {
 	/**
 	 * returns the routes detected by the annotation reader
 	 *
-	 * @return array
+	 * @return Route[]
 	 */
 	public function getRoutes(): array {
 		return $this->routes;
