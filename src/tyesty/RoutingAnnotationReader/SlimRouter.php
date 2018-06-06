@@ -55,7 +55,7 @@ class SlimRouter implements RouterInterface
 
             eval($s_call);
             if ($cache_folder !== null) {
-                file_put_contents($cache_folder.DIRECTORY_SEPARATOR.self::cacheFile, "<?php\n/**\n * Slim routes definition cache, generated on ".date("Y-m-d H:i:s")."\n * This file is valid for $cache_ttl seconds.\n */\n$s_call\n?>");
+                file_put_contents($cache_folder.DIRECTORY_SEPARATOR.self::cacheFile, "<?php\n/**\n * Slim routes definition cache, generated on ".date("Y-m-d H:i:s")."\n * This file is valid for $cache_ttl seconds.\n */\n$s_call");
             }
 
         } else {
