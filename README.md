@@ -124,14 +124,27 @@ $reader = new Reader(["src", "somemore", "paths"], "/path/to/your/logfile.html")
 ### Route injection ###
 
 #### Inject routes to Slim application ####
-In order to inject routes into your slim application, simply add these lines to your slim bootstrap code:
+In order to inject routes into your slim application, you can use the SlimRouter class with its `inject` method.
+This method accepts four parameters:
+
+| -- | ----- | ------ | ----- |
+| Parameter | Type | Default | Description |
+| -- | ----- | ------ | ----- |
+| $app | Slim\App | | The Slim App object |
+| $reader | tyesty\RoutingAnnotationReader\ReaderInterface | | The reader object |
+| $cachePath | ?string | null | The path to the cache folder. If null, then no cache is used |
+| $ttl | int | 60 | The TTL for the cached routes. Defaults to 60 |
+| -- | ----- | ------ | ----- |
+##### Example #####
 ```php
 
 $app = new \Slim\App($container);
 
 SlimRouter::inject(
   $app,
-  new Reader(["src", "somemore", "paths"])
+  new Reader(["src", "somemore", "paths"]),
+  "/path/to/cache/folder",
+  60
 );
 
 ```

@@ -62,8 +62,16 @@ class Reader implements ReaderInterface {
 	 */
 	private $methodPostfix = "Action";
 
+    /**
+     * The folder in which the cache files shall be written
+     *
+     * @var null|string
+     */
+    private $cacheFolder = null;
+    private $cacheFile = "__CACHE__routes.php";
 
-	/**
+
+    /**
 	 * RoutingAnnotationReader constructor.
 	 *
 	 * Sets the directories and an optional log file
@@ -73,7 +81,8 @@ class Reader implements ReaderInterface {
 	 *
 	 * @throws \ReflectionException
 	 */
-	public function __construct(array $directories, ?string $route_log = null) {
+	public function __construct(array $directories, ?string $cache_folder = null, ?string $route_log = null) {
+	    $this->cacheFolder = $cache_folder;
 		$this->directories = $directories;
 		$this->routeLog = $route_log;
 	}
@@ -106,11 +115,20 @@ class Reader implements ReaderInterface {
 	 * @throws \ReflectionException
 	 */
 	public function run(): void {
-		$this->calculateClassList();
-		$this->buildRoutes();
-		if ($this->routeLog !== null) {
-			$this->writeRouteLog();
-		}
+
+	    // check if a cache folder is not set, then calculate and build the routes
+	    if ($this->cacheFolder === null || !file_exists($this->cacheFolder.DIRECTORY_SEPARATOR."__CACHE__routes.php")) {
+            $this->calculateClassList();
+            $this->buildRoutes();
+
+            if ($this->routeLog !== null) {
+                $this->writeRouteLog();
+            }
+        }
+        // otherwise just load the cached routes
+        else {
+            require_once($this->cacheFolder.DIRECTORY_SEPARATOR."__CACHE__routes.php");
+        }
 	}
 
 	/**
@@ -160,6 +178,7 @@ class Reader implements ReaderInterface {
 
 			// and the base middlewares
             $a_base_middlewares = [];
+            $_a_base_mw = [];
             preg_match_all("/@Middleware\s+(.*?)\s+/i", $o_reflection->getDocComment(), $_a_base_mw, PREG_SET_ORDER);
             foreach ($_a_base_mw as $a_base_mw) {
                 $a_base_middlewares[] = trim($a_base_mw[1]);
@@ -174,6 +193,7 @@ class Reader implements ReaderInterface {
 				// get the middlewares
                 // initialize
                 $a_middlewares = $a_base_middlewares;
+                $a_m_middlewares = [];
                 preg_match_all("/@Middleware\s+(.*?)\s+/i", $o_method->getDocComment(), $a_m_middlewares, PREG_SET_ORDER);
                 foreach ((array)$a_m_middlewares as $a_mw) {
                     $a_middlewares[] = $a_mw[1];
@@ -211,16 +231,22 @@ class Reader implements ReaderInterface {
 					});
 
 					// no collision, then add the route to the routes list
-                    $o_route = new Route();
-                    $o_route->method = $s_method;
-                    $o_route->route = $s_route;
-                    $o_route->action = $s_action;
-                    $o_route->name = $s_name;
-                    $o_route->middlewares = (array)$a_middlewares;
-					$this->routes[] = $o_route;
+					$this->routes[] = [
+					    "method" => $s_method,
+                        "route" => $s_route,
+                        "action" => $s_action,
+                        "name" => $s_name,
+                        "middlewares" => $a_middlewares
+                    ];
 				}
 			}
 		}
+
+		// check the cache folder, if it's set then write the cache file
+        if ($this->cacheFolder !== null) {
+            $s_cache_string = "<?php\n\$this->routes = json_decode('".json_encode($this->routes)."');\n?>";
+            file_put_contents($this->cacheFolder.DIRECTORY_SEPARATOR."__CACHE__routes.php", $s_cache_string);
+        }
 	}
 
 	/**
