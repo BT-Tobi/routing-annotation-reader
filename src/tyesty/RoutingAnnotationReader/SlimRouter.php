@@ -25,6 +25,9 @@ class SlimRouter implements RouterInterface
      */
     public static function inject(ReaderInterface $reader, string $app_name = "app", ?string $cache_folder = null, int $cache_ttl = 60): void {
 
+        // it's evil, but that's the only way to be able to get the app both cached and non-cached
+        global $$app_name;
+
         // check if parsing is needed
         $parsingNeeded = true;
         if ($cache_folder !== null && file_exists($cache_folder . DIRECTORY_SEPARATOR . self::cacheFile)) {
@@ -55,6 +58,7 @@ class SlimRouter implements RouterInterface
                     }
 
                     $s_call .= "\${$app_name}->{$route["method"]}(\"" . $route["route"] . "\", " . $route["action"] . "){$name}{$middleware};\n";
+
                 } catch (\Throwable $t) {
                     throw new SlimRouterInjectionException($t->getMessage() . "\n" . print_r($route, true));
                 }
